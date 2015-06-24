@@ -1,0 +1,72 @@
+<!DOCTYPE>
+<html>
+  <head>
+    <title>jquery-countdown plugin test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="js/jquery.countdown.js"></script>
+    <link href="css/media.css" rel="stylesheet" type="text/css" />
+    <script>
+      $(function(){
+        var BLOCKS = [7,9,10,12,14,17];
+        var workingHours = false;
+
+        var getTime = function () {
+          var current = new Date();
+          return {
+            'hour': current.getHours(),
+            'minute': current.getMinutes(),
+            'seconds': current.getSeconds()
+          }
+        };
+
+        var setBlock = function () {
+          var time = getTime();
+          for (var i=0; i < BLOCKS.length; i++) {
+            if (time.hour >= BLOCKS[i]) {
+              console.log(BLOCKS[i]);
+              workingHours = !workingHours;
+            }
+          }
+        };
+
+        setBlock();
+        if (workingHours) {
+          $('h1.talk').hide();
+        } else {
+          $('h1.silent').hide();
+        }
+
+        var getEndTime = function () {
+          var current = new Date();
+          var time = getTime();
+          var nextHour = BLOCKS[0];
+          for (var i=0; i < BLOCKS.length-1; i++) {
+            if (time.hour >= BLOCKS[i] && time.hour < BLOCKS[i+1]) {
+              nextHour = BLOCKS[i+1];
+            }  
+          }
+          var endDate = new Date(current.getYear(), current.getMonth(), current.getDay(), nextHour, 0, 0)
+          return endDate;
+        };
+
+        $(".digits").countdown({
+          image: "img/digits.png",
+          format: "hh:mm:ss",
+          endTime: getEndTime(),
+          timerEnd: function() { location.reload(); }
+        });
+
+
+      });
+    </script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <h1 class='silent'>Be silent!!!</h1>
+      <h1 class='talk'>Let's talk, now it's time!!!</h1>
+      <div class="timer">
+        <div class="digits"></div>
+      </div>
+    </div>
+  </body>
+</html>
