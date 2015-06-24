@@ -3,8 +3,14 @@
   <head>
     <title>jquery-countdown plugin test</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
     <script src="js/jquery.countdown.js"></script>
+
+    <script src="http://wavesurfer.fm/dist/wavesurfer.min.js"></script>
+    <script src="js/waveform-mic.js"></script>
+
     <link href="css/media.css" rel="stylesheet" type="text/css" />
+    <link href="css/jquery-ui.min.css" rel="stylesheet" type="text/css" />
     <script>
       $(function(){
         var BLOCKS = [7,9,10,12,14,17];
@@ -56,7 +62,48 @@
           timerEnd: function() { location.reload(); }
         });
 
+        var wavesurfer = Object.create(WaveSurfer);
+        var audioCtx = new AudioContext;
+        var processor = audioCtx.createScriptProcessor(2048, 1, 1);
 
+        $(document).on('ready', function () {      
+          var wavesurfer = Object.create(WaveSurfer);
+
+          wavesurfer.init({
+            container     : '#waveform',
+            waveColor     : 'blue',
+            interact      : true,
+            cursorWidth   : 10
+          });
+
+          var microphone = Object.create(WaveSurfer.Microphone);
+
+          microphone.init({
+              wavesurfer: wavesurfer
+          });
+
+          microphone.on('deviceReady', function(stream) {
+              console.log('Device ready!', stream);
+          });
+          microphone.on('deviceError', function(code) {
+              console.warn('Device error: ' + code);
+          });
+
+          // start the microphone
+          microphone.start();
+
+          // pause rendering
+          //microphone.togglePlay();
+
+          // stop and disconnect microphone
+          //microphone.stop();
+          setInterval(function() {
+            $( ".bar" ).progressbar({
+              value: microphone.rms
+            }, 500);            
+          });
+
+        });
       });
     </script>
   </head>
@@ -68,5 +115,7 @@
         <div class="digits"></div>
       </div>
     </div>
+    <audio id="waveform" style="display: none"></audio>
+    <div class="bar"></div>
   </body>
 </html>
